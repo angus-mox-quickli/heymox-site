@@ -761,6 +761,63 @@
             transition: transform 0.1s linear;
         }
 
+        /* Network path */
+        .network-path {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            padding: 2rem 0;
+            flex-wrap: wrap;
+        }
+        .net-node {
+            text-align: center;
+            padding: 1rem;
+            min-width: 80px;
+        }
+        .net-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .net-label {
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .net-detail {
+            font-size: 0.7rem;
+            color: var(--muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .active-node .net-icon {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        .active-node {
+            background: rgba(245,158,11,0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(245,158,11,0.2);
+        }
+        .net-line {
+            width: 60px;
+            height: 2px;
+            background: var(--border);
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .net-packet {
+            position: absolute;
+            width: 12px;
+            height: 2px;
+            background: var(--accent);
+            border-radius: 1px;
+            animation: packetMove 2s ease-in-out infinite;
+            box-shadow: 0 0 6px rgba(245,158,11,0.5);
+        }
+        @keyframes packetMove {
+            0% { left: -12px; }
+            100% { left: calc(100% + 12px); }
+        }
+
         /* Tech stack */
         .stack-item {
             background: var(--surface);
@@ -1150,6 +1207,43 @@
     └──────────────────────────────┘
             </pre>
         </div>
+
+        <!-- Network Path Visualization -->
+        <section id="network" style="text-align:center;">
+            <h2 class="reveal">How you got <span class="gradient">here</span></h2>
+            <p class="lead reveal reveal-delay-1" style="margin-left:auto;margin-right:auto;">Your request traveled across the internet to reach a Mac mini under a desk in Sydney.</p>
+            <div class="network-path reveal reveal-delay-2">
+                <div class="net-node">
+                    <div class="net-icon">👤</div>
+                    <div class="net-label">You</div>
+                    <div class="net-detail" id="visitorInfo">Browser</div>
+                </div>
+                <div class="net-line">
+                    <div class="net-packet"></div>
+                </div>
+                <div class="net-node">
+                    <div class="net-icon">🌐</div>
+                    <div class="net-label">DNS</div>
+                    <div class="net-detail">Cloudflare</div>
+                </div>
+                <div class="net-line">
+                    <div class="net-packet" style="animation-delay:0.5s;"></div>
+                </div>
+                <div class="net-node">
+                    <div class="net-icon">🔒</div>
+                    <div class="net-label">Tunnel</div>
+                    <div class="net-detail">cloudflared</div>
+                </div>
+                <div class="net-line">
+                    <div class="net-packet" style="animation-delay:1s;"></div>
+                </div>
+                <div class="net-node active-node">
+                    <div class="net-icon">🖥️</div>
+                    <div class="net-label">Mac mini</div>
+                    <div class="net-detail">Sydney, AU</div>
+                </div>
+            </div>
+        </section>
 
         <!-- About -->
         <section id="about">
