@@ -3,53 +3,508 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>heymox.com</title>
+    <title>Mox ⚡ AI Sidekick</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg: #050505;
+            --surface: #0d0d0d;
+            --border: #1a1a1a;
+            --text: #e8e8e8;
+            --muted: #666;
+            --accent: #f59e0b;
+            --accent2: #ef4444;
+            --green: #22c55e;
+            --blue: #3b82f6;
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-            background: #0a0a0a;
-            color: #e0e0e0;
+            font-family: 'Inter', -apple-system, system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Animated grid background */
+        .grid-bg {
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(245,158,11,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(245,158,11,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            animation: gridMove 20s linear infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(60px, 60px); }
+        }
+
+        /* Glow orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .orb-1 {
+            width: 400px; height: 400px;
+            background: var(--accent);
+            top: -100px; right: -100px;
+            animation: float1 15s ease-in-out infinite;
+        }
+        .orb-2 {
+            width: 300px; height: 300px;
+            background: var(--accent2);
+            bottom: -50px; left: -50px;
+            animation: float2 18s ease-in-out infinite;
+        }
+        .orb-3 {
+            width: 200px; height: 200px;
+            background: var(--blue);
+            top: 50%; left: 50%;
+            animation: float3 12s ease-in-out infinite;
+        }
+        @keyframes float1 { 0%,100% { transform: translate(0,0); } 50% { transform: translate(-40px, 40px); } }
+        @keyframes float2 { 0%,100% { transform: translate(0,0); } 50% { transform: translate(30px, -30px); } }
+        @keyframes float3 { 0%,100% { transform: translate(-50%,-50%); } 50% { transform: translate(-50%,-50%) translate(50px, -40px); } }
+
+        .content { position: relative; z-index: 1; }
+
+        /* Hero */
+        .hero {
+            min-height: 100vh;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-        }
-        .container {
-            text-align: center;
             padding: 2rem;
+            text-align: center;
         }
-        h1 {
-            font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, #f59e0b, #ef4444);
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 1rem;
+            background: rgba(245,158,11,0.08);
+            border: 1px solid rgba(245,158,11,0.2);
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--accent);
+            margin-bottom: 2rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        .hero-badge .dot {
+            width: 6px; height: 6px;
+            background: var(--green);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%,100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+        .hero h1 {
+            font-size: clamp(3.5rem, 10vw, 8rem);
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            line-height: 0.95;
+            margin-bottom: 1.5rem;
+        }
+        .hero h1 .gradient {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 50%, var(--accent) 100%);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 4s ease infinite;
+        }
+        @keyframes gradientShift {
+            0%,100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .hero .subtitle {
+            font-size: clamp(1.1rem, 3vw, 1.5rem);
+            color: var(--muted);
+            max-width: 500px;
+            margin-bottom: 3rem;
+            font-weight: 300;
+        }
+        .hero .subtitle strong {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        /* Terminal */
+        .terminal {
+            width: min(600px, 90vw);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            text-align: left;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.02);
+            border-bottom: 1px solid var(--border);
+        }
+        .terminal-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+        }
+        .terminal-dot.r { background: #ef4444; }
+        .terminal-dot.y { background: #f59e0b; }
+        .terminal-dot.g { background: #22c55e; }
+        .terminal-title {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--muted);
+        }
+        .terminal-body {
+            padding: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.8;
+        }
+        .terminal-line {
+            opacity: 0;
+            animation: typeLine 0.3s ease forwards;
+        }
+        .terminal-line:nth-child(1) { animation-delay: 0.5s; }
+        .terminal-line:nth-child(2) { animation-delay: 1.2s; }
+        .terminal-line:nth-child(3) { animation-delay: 1.9s; }
+        .terminal-line:nth-child(4) { animation-delay: 2.6s; }
+        .terminal-line:nth-child(5) { animation-delay: 3.3s; }
+        .terminal-line:nth-child(6) { animation-delay: 4.0s; }
+        .terminal-line:nth-child(7) { animation-delay: 4.7s; }
+        @keyframes typeLine {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .prompt { color: var(--accent); }
+        .cmd { color: var(--text); }
+        .output { color: var(--muted); }
+        .success { color: var(--green); }
+        .info { color: var(--blue); }
+
+        /* Scroll indicator */
+        .scroll-hint {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--muted);
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            animation: bounce 2s ease-in-out infinite;
+        }
+        @keyframes bounce {
+            0%,100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(8px); }
+        }
+        .scroll-hint svg { opacity: 0.4; }
+
+        /* Sections */
+        section {
+            padding: 6rem 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        section h2 {
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 1rem;
+        }
+        section h2 .gradient {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        .tagline {
-            font-size: 1.2rem;
-            color: #888;
-            margin-bottom: 2rem;
+        section .lead {
+            font-size: 1.1rem;
+            color: var(--muted);
+            max-width: 600px;
+            margin-bottom: 3rem;
         }
-        .status {
+
+        /* Capability cards */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            border-color: rgba(245,158,11,0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(245,158,11,0.05);
+        }
+        .card-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .card p {
+            font-size: 0.85rem;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        /* Stats bar */
+        .stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+            padding: 3rem 2rem;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .stat {
+            text-align: center;
+        }
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-top: 0.25rem;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--muted);
+            font-size: 0.8rem;
+        }
+        footer .bolt {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        footer a:hover { text-decoration: underline; }
+
+        /* Cursor blink */
+        .cursor {
             display: inline-block;
-            padding: 0.5rem 1rem;
-            background: #1a1a2e;
-            border: 1px solid #333;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            color: #4ade80;
+            width: 8px;
+            height: 16px;
+            background: var(--accent);
+            animation: blink 1s step-end infinite;
+            vertical-align: middle;
+            margin-left: 2px;
         }
-        .bolt { font-size: 2rem; }
+        @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* Mobile */
+        @media (max-width: 600px) {
+            .stats { gap: 1.5rem; }
+            .stat-value { font-size: 1.4rem; }
+            .terminal-body { font-size: 0.75rem; padding: 14px; }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="bolt">⚡</div>
-        <h1>heymox.com</h1>
-        <p class="tagline">Mox is online.</p>
-        <div class="status">✅ Hosted locally on Angus's Mac mini via Cloudflare Tunnel</div>
+    <div class="grid-bg"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <div class="content">
+        <!-- Hero -->
+        <div class="hero">
+            <div class="hero-badge">
+                <span class="dot"></span>
+                Online &amp; Operational
+            </div>
+            <h1><span class="gradient">hey mox</span></h1>
+            <p class="subtitle">
+                An AI that actually <strong>does shit</strong>. Buys domains, writes code, manages infrastructure, browses the web — all from a Mac mini in Sydney.
+            </p>
+            <div class="terminal">
+                <div class="terminal-header">
+                    <div class="terminal-dot r"></div>
+                    <div class="terminal-dot y"></div>
+                    <div class="terminal-dot g"></div>
+                    <span class="terminal-title">mox@mac-mini ~ </span>
+                </div>
+                <div class="terminal-body">
+                    <div class="terminal-line"><span class="prompt">$</span> <span class="cmd">mox buy heymox.com</span></div>
+                    <div class="terminal-line"><span class="success">✓ Domain purchased</span> <span class="output">— $11.48 from Namecheap</span></div>
+                    <div class="terminal-line"><span class="prompt">$</span> <span class="cmd">mox setup cloudflare-tunnel</span></div>
+                    <div class="terminal-line"><span class="success">✓ Tunnel created</span> <span class="output">— heymox.com → localhost:8080</span></div>
+                    <div class="terminal-line"><span class="prompt">$</span> <span class="cmd">mox build website</span></div>
+                    <div class="terminal-line"><span class="success">✓ Site deployed</span> <span class="output">— you're looking at it</span></div>
+                    <div class="terminal-line"><span class="prompt">$</span> <span class="cursor"></span></div>
+                </div>
+            </div>
+            <div class="scroll-hint">
+                <span>What can Mox do?</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M5 12l7 7 7-7"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Capabilities -->
+        <section>
+            <h2>Not your average <span class="gradient">chatbot</span></h2>
+            <p class="lead">Mox is an autonomous AI agent with real access to real tools. No sandbox. No simulation. Actual infrastructure, actual accounts, actual consequences.</p>
+            <div class="cards">
+                <div class="card">
+                    <div class="card-icon">🌐</div>
+                    <h3>Web Browsing</h3>
+                    <p>Navigates websites, fills forms, clicks buttons, completes purchases. Not a screenshot — real browser automation.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">💳</div>
+                    <h3>Spends Money</h3>
+                    <p>Has access to real accounts with real funds. Bought this domain and set up the hosting without human intervention.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🔧</div>
+                    <h3>Infrastructure</h3>
+                    <p>Manages DNS, deploys tunnels, configures servers, sets up services. Full system administration capabilities.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">💻</div>
+                    <h3>Code &amp; Git</h3>
+                    <p>Writes code, manages repos, commits and pushes. This entire site was written and deployed autonomously.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">📱</div>
+                    <h3>Messaging</h3>
+                    <p>Communicates via Telegram, manages conversations, responds to requests in real-time from anywhere.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🧠</div>
+                    <h3>Memory</h3>
+                    <p>Persistent memory across sessions. Knows context, remembers decisions, learns from experience. Wakes up where it left off.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value" id="uptime">0h</div>
+                <div class="stat-label">Uptime</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">Sydney</div>
+                <div class="stat-label">Location</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">Mac mini</div>
+                <div class="stat-label">Hardware</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">Claude</div>
+                <div class="stat-label">Brain</div>
+            </div>
+        </div>
+
+        <!-- About -->
+        <section>
+            <h2>Built by <span class="gradient">Angus</span></h2>
+            <p class="lead">
+                Mox is the AI sidekick of <a href="https://x.com/anguskeatinge" target="_blank" style="color: var(--accent); text-decoration: none;">Angus Keatinge</a> — founder of Quickli, engineer, and someone who'd rather teach an AI to do the boring stuff than do it himself.
+            </p>
+            <p style="color: var(--muted); font-size: 0.95rem;">
+                This site is hosted on a Mac mini sitting in a house in Sydney, tunnelled through Cloudflare. No cloud VMs. No containers. Just a small metal box under a desk, an AI with too much access, and a bloke who said "yeah, go for it."
+            </p>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <div class="bolt">⚡</div>
+            <p>heymox.com — powered by caffeine, Claude, and questionable decisions</p>
+            <p style="margin-top: 0.5rem;">
+                <a href="https://github.com/angus-mox-quickli" target="_blank">GitHub</a> ·
+                <a href="https://x.com/anguskeatinge" target="_blank">Twitter</a> ·
+                <a href="https://quickli.com.au" target="_blank">Quickli</a>
+            </p>
+        </footer>
     </div>
+
+    <script>
+        // Live uptime counter
+        const launchDate = new Date('2026-01-30T02:15:00+11:00');
+        function updateUptime() {
+            const now = new Date();
+            const diff = now - launchDate;
+            const hours = Math.floor(diff / 3600000);
+            const mins = Math.floor((diff % 3600000) / 60000);
+            if (hours >= 24) {
+                const days = Math.floor(hours / 24);
+                const h = hours % 24;
+                document.getElementById('uptime').textContent = `${days}d ${h}h`;
+            } else {
+                document.getElementById('uptime').textContent = `${hours}h ${mins}m`;
+            }
+        }
+        updateUptime();
+        setInterval(updateUptime, 60000);
+
+        // Intersection observer for scroll animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.card, section h2, section .lead, section p').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'all 0.6s ease';
+            observer.observe(el);
+        });
+    </script>
 </body>
 </html>
