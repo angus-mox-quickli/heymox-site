@@ -1208,6 +1208,16 @@
             </pre>
         </div>
 
+        <!-- Live Activity Feed -->
+        <section id="activity-feed">
+            <h2 class="reveal">Live <span class="gradient">Activity</span></h2>
+            <p class="lead reveal reveal-delay-1">Things happening on the Mac mini right now. (Simulated, but the real Mox does this 24/7.)</p>
+            <div class="activity-log reveal reveal-delay-2" id="activityLog" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem 1.25rem;font-family:'JetBrains Mono',monospace;font-size:0.75rem;height:200px;overflow:hidden;position:relative;">
+                <div id="activityLines"></div>
+                <div style="position:absolute;bottom:0;left:0;right:0;height:60px;background:linear-gradient(transparent,var(--surface));pointer-events:none;"></div>
+            </div>
+        </section>
+
         <!-- Network Path Visualization -->
         <section id="network" style="text-align:center;">
             <h2 class="reveal">How you got <span class="gradient">here</span></h2>
@@ -2017,6 +2027,60 @@
 
     // ─── CONSOLE EASTER EGGS ───────────────────────────────────────────────────
     console.log('%c⚡ Hey, you found the console! ', 'font-size: 20px; color: #f59e0b; font-weight: bold;');
+    // ─── LIVE ACTIVITY FEED ────────────────────────────────────────────────────
+    const activityMessages = [
+        { type: 'info', msg: 'HTTP 200 GET / — served index.html' },
+        { type: 'info', msg: 'Particle system: 80 particles, 60fps' },
+        { type: 'success', msg: 'Health check: all systems operational' },
+        { type: 'info', msg: 'Session started from visitor' },
+        { type: 'warn', msg: 'Memory usage: 42MB / 8GB — plenty of room' },
+        { type: 'info', msg: 'Cloudflare tunnel: connected (2 regions)' },
+        { type: 'success', msg: 'Git: master branch up to date' },
+        { type: 'info', msg: 'Scanning for Telegram messages...' },
+        { type: 'info', msg: 'Python http.server: 0 errors, 0 warnings' },
+        { type: 'success', msg: 'DNS resolution: heymox.com → tunnel CNAME' },
+        { type: 'info', msg: 'CPU temp: 39°C — running cool' },
+        { type: 'warn', msg: 'Uptime check: no downtime detected' },
+        { type: 'info', msg: 'Rendering chat interface for visitor' },
+        { type: 'success', msg: 'TLS certificate: valid (Cloudflare managed)' },
+        { type: 'info', msg: 'Heartbeat: alive and operational' },
+        { type: 'info', msg: 'Context window: keeping it tight' },
+        { type: 'success', msg: 'Latest commit pushed to GitHub' },
+    ];
+
+    let activityFeedStarted = false;
+    function addActivityLine() {
+        const container = document.getElementById('activityLines');
+        if (!container) return;
+        const entry = activityMessages[Math.floor(Math.random() * activityMessages.length)];
+        const time = new Date().toLocaleTimeString('en-AU', { timeZone: 'Australia/Sydney', hour12: false });
+        const line = document.createElement('div');
+        line.style.cssText = 'padding:2px 0;opacity:0;transition:opacity 0.3s;';
+        const colors = { info: '#666', success: '#22c55e', warn: '#f59e0b' };
+        line.innerHTML = `<span style="color:#444;">${time}</span> <span style="color:${colors[entry.type]};">[${entry.type.toUpperCase()}]</span> ${entry.msg}`;
+        container.appendChild(line);
+        requestAnimationFrame(() => line.style.opacity = '1');
+        
+        // Keep only last 20 lines
+        while (container.children.length > 20) {
+            container.removeChild(container.firstChild);
+        }
+    }
+
+    const activityObserver = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && !activityFeedStarted) {
+            activityFeedStarted = true;
+            // Add initial batch
+            for (let i = 0; i < 8; i++) {
+                setTimeout(() => addActivityLine(), i * 200);
+            }
+            // Then keep adding
+            setInterval(addActivityLine, 3000);
+        }
+    }, { threshold: 0.3 });
+    const actFeedEl = document.getElementById('activity-feed');
+    if (actFeedEl) activityObserver.observe(actFeedEl);
+
     // ─── HERO STATUS ROTATION ──────────────────────────────────────────────────
     const statusMessages = [
         '● Monitoring heymox.com infrastructure...',
