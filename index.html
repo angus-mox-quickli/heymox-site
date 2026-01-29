@@ -2328,6 +2328,15 @@
     });
 
     // ─── CONSOLE EASTER EGGS ───────────────────────────────────────────────────
+    const artLines = [
+        '  __  __  _____  __   __',
+        ' |  \\/  |/ _ \\ \\/ /  ',
+        ' | |\\/| | | | >  <   ',
+        ' | |  | | |_| / . \\  ',
+        ' |_|  |_|\\___/_/ \\_\\ ',
+        '',
+    ];
+    console.log('%c' + artLines.join('\n'), 'color: #f59e0b; font-family: monospace; font-size: 14px;');
     console.log('%c⚡ Hey, you found the console! ', 'font-size: 20px; color: #f59e0b; font-weight: bold;');
     // ─── SYSTEM MONITOR ───────────────────────────────────────────────────────
     let sysmonStarted = false;
@@ -2776,6 +2785,12 @@
             setTimeout(() => confetti.remove(), 2000);
         }
     }
+
+    // Double-click badge in hero
+    document.querySelector('.hero-badge').addEventListener('dblclick', () => {
+        confettiBurst();
+        if (soundEnabled) playSuccess();
+    });
 
     // Double-click the ⚡ bolt in the footer for confetti
     document.querySelector('footer .bolt').addEventListener('dblclick', () => {
