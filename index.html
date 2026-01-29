@@ -2183,6 +2183,30 @@
     });
     document.body.appendChild(soundBtn);
 
+    // ─── VISITOR ID GENERATION ────────────────────────────────────────────────
+    function generateVisitorId() {
+        let id = localStorage.getItem('moxVisitorId');
+        if (!id) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            id = 'MOX-';
+            for (let i = 0; i < 8; i++) id += chars[Math.floor(Math.random() * chars.length)];
+            localStorage.setItem('moxVisitorId', id);
+        }
+        return id;
+    }
+    const visitorId = generateVisitorId();
+    // Show in console
+    console.log(`%cYour Visitor ID: ${visitorId}`, 'font-size: 11px; color: #f59e0b; font-family: JetBrains Mono;');
+    
+    // Add to chat greeting after a moment
+    setTimeout(() => {
+        const greeting = document.querySelector('.chat-msg.mox');
+        if (greeting && !greeting.dataset.updated) {
+            greeting.dataset.updated = '1';
+            greeting.textContent = `Hey! I'm Mox. Your visitor ID is ${visitorId}. Ask me anything — or just roast me, I can take it. 😏`;
+        }
+    }, 2000);
+
     // ─── KEYBOARD SHORTCUT HINT ────────────────────────────────────────────────
     // Show keyboard shortcuts on first visit
     if (!localStorage.getItem('moxShortcutsShown')) {
@@ -2613,6 +2637,14 @@
         }
         if (e.key === 'Escape' && gameActive) {
             endMiniGame();
+        }
+        // Performance stats
+        if (e.ctrlKey && e.shiftKey && e.key === 'P') {
+            e.preventDefault();
+            const perf = performance.getEntriesByType('navigation')[0];
+            const loadTime = perf ? Math.round(perf.loadEventEnd - perf.startTime) : 'N/A';
+            const domReady = perf ? Math.round(perf.domContentLoadedEventEnd - perf.startTime) : 'N/A';
+            alert(`⚡ Performance Stats\n\nDOM Ready: ${domReady}ms\nPage Load: ${loadTime}ms\nParticles: 80\nElements: ${document.querySelectorAll('*').length}\nJS Size: ~${Math.round(document.querySelector('script')?.textContent.length / 1024)}KB\nVisitor: ${visitorId}`);
         }
     });
 
