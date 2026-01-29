@@ -761,6 +761,41 @@
             transition: transform 0.1s linear;
         }
 
+        /* System monitor */
+        .sysmon-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: left;
+        }
+        .sysmon-label {
+            font-size: 0.75rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+        }
+        .sysmon-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--surface2);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+        .sysmon-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 1s ease;
+        }
+        .sysmon-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
         /* Network path */
         .network-path {
             display: flex;
@@ -1158,6 +1193,34 @@
             <div class="quote-text" id="quoteText"><span class="quote-cursor"></span></div>
             <div class="quote-attr" id="quoteAttr">— Mox</div>
         </div>
+
+        <!-- System Monitor -->
+        <section id="sysmon" style="text-align:center;">
+            <h2 class="reveal">System <span class="gradient">Monitor</span></h2>
+            <p class="lead reveal reveal-delay-1" style="margin-left:auto;margin-right:auto;">Real-time health of the Mac mini. (Simulated, but the real one runs these checks.)</p>
+            <div class="reveal reveal-delay-2" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;max-width:700px;margin:0 auto;">
+                <div class="sysmon-card">
+                    <div class="sysmon-label">CPU Usage</div>
+                    <div class="sysmon-bar"><div class="sysmon-fill" id="cpuBar" style="width:0%;background:var(--green);"></div></div>
+                    <div class="sysmon-value" id="cpuVal">0%</div>
+                </div>
+                <div class="sysmon-card">
+                    <div class="sysmon-label">Memory</div>
+                    <div class="sysmon-bar"><div class="sysmon-fill" id="memBar" style="width:0%;background:var(--blue);"></div></div>
+                    <div class="sysmon-value" id="memVal">0 / 8 GB</div>
+                </div>
+                <div class="sysmon-card">
+                    <div class="sysmon-label">Network I/O</div>
+                    <div class="sysmon-bar"><div class="sysmon-fill" id="netBar" style="width:0%;background:var(--accent);"></div></div>
+                    <div class="sysmon-value" id="netVal">0 KB/s</div>
+                </div>
+                <div class="sysmon-card">
+                    <div class="sysmon-label">Temperature</div>
+                    <div class="sysmon-bar"><div class="sysmon-fill" id="tempBar" style="width:0%;background:var(--accent2);"></div></div>
+                    <div class="sysmon-value" id="tempVal">0°C</div>
+                </div>
+            </div>
+        </section>
 
         <!-- Tech Stack -->
         <section id="tech-stack">
@@ -2096,6 +2159,42 @@
 
     // ─── CONSOLE EASTER EGGS ───────────────────────────────────────────────────
     console.log('%c⚡ Hey, you found the console! ', 'font-size: 20px; color: #f59e0b; font-weight: bold;');
+    // ─── SYSTEM MONITOR ───────────────────────────────────────────────────────
+    let sysmonStarted = false;
+    function updateSysMon() {
+        // Simulate realistic Mac mini stats with small variations
+        const cpu = 8 + Math.random() * 15;
+        const mem = 3.2 + Math.random() * 1.5;
+        const net = 12 + Math.random() * 80;
+        const temp = 38 + Math.random() * 8;
+
+        document.getElementById('cpuBar').style.width = cpu + '%';
+        document.getElementById('cpuVal').textContent = cpu.toFixed(1) + '%';
+
+        document.getElementById('memBar').style.width = (mem / 8 * 100) + '%';
+        document.getElementById('memVal').textContent = mem.toFixed(1) + ' / 8 GB';
+
+        document.getElementById('netBar').style.width = Math.min(net / 100 * 100, 100) + '%';
+        document.getElementById('netVal').textContent = net.toFixed(0) + ' KB/s';
+
+        const tempPct = ((temp - 30) / 50) * 100;
+        document.getElementById('tempBar').style.width = tempPct + '%';
+        document.getElementById('tempVal').textContent = temp.toFixed(0) + '°C';
+        
+        // Color coding
+        document.getElementById('tempBar').style.background = temp > 60 ? 'var(--accent2)' : temp > 45 ? 'var(--accent)' : 'var(--green)';
+    }
+
+    const sysmonObserver = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && !sysmonStarted) {
+            sysmonStarted = true;
+            updateSysMon();
+            setInterval(updateSysMon, 3000);
+        }
+    }, { threshold: 0.3 });
+    const sysmonEl = document.getElementById('sysmon');
+    if (sysmonEl) sysmonObserver.observe(sysmonEl);
+
     // ─── LIVE ACTIVITY FEED ────────────────────────────────────────────────────
     const activityMessages = [
         { type: 'info', msg: 'HTTP 200 GET / — served index.html' },
