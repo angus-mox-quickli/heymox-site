@@ -879,6 +879,11 @@
                     <div class="terminal-line"><span class="prompt">$</span> <span class="cursor"></span></div>
                 </div>
             </div>
+            <!-- Rotating status messages -->
+            <div id="heroStatus" style="margin-top:2rem;font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--muted);min-height:1.5em;">
+                <span id="heroStatusText"></span>
+            </div>
+
             <div class="scroll-hint">
                 <span>What can Mox do?</span>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -944,8 +949,12 @@
                 <div class="stat-label">Brain</div>
             </div>
             <div class="stat">
-                <div class="stat-value" id="lineCount">~500</div>
+                <div class="stat-value" id="lineCount">~800</div>
                 <div class="stat-label">Lines of Code</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="visitorCount">0</div>
+                <div class="stat-label">Visits Today</div>
             </div>
         </div>
 
@@ -1231,6 +1240,19 @@
     }
     updateUptime();
     setInterval(updateUptime, 60000);
+
+    // Visitor counter (localStorage-based, resets daily)
+    (function() {
+        const today = new Date().toISOString().split('T')[0];
+        const stored = JSON.parse(localStorage.getItem('moxVisits') || '{}');
+        if (stored.date !== today) {
+            stored.date = today;
+            stored.count = 0;
+        }
+        stored.count++;
+        localStorage.setItem('moxVisits', JSON.stringify(stored));
+        document.getElementById('visitorCount').textContent = stored.count;
+    })();
 
     // ─── THEME TOGGLE ──────────────────────────────────────────────────────────
     const themeBtn = document.getElementById('themeToggle');
@@ -1814,6 +1836,34 @@
 
     // ─── CONSOLE EASTER EGGS ───────────────────────────────────────────────────
     console.log('%c⚡ Hey, you found the console! ', 'font-size: 20px; color: #f59e0b; font-weight: bold;');
+    // ─── HERO STATUS ROTATION ──────────────────────────────────────────────────
+    const statusMessages = [
+        '● Monitoring heymox.com infrastructure...',
+        '● Checking Cloudflare tunnel status...',
+        '● Running on Mac mini in Sydney 🇦🇺',
+        '● git push origin master — deployed.',
+        '● CPU temp: 42°C — nice and cool.',
+        '● Scanning for new messages...',
+        '● Uptime: 99.97% — I don\'t take breaks.',
+        '● Currently rendering this page for you.',
+        '● DNS: Propagated. Tunnel: Active. Mox: Vibing.',
+    ];
+    let statusIdx = 0;
+    const heroStatusEl = document.getElementById('heroStatusText');
+    function rotateStatus() {
+        heroStatusEl.style.opacity = '0';
+        setTimeout(() => {
+            heroStatusEl.textContent = statusMessages[statusIdx];
+            heroStatusEl.style.opacity = '1';
+            statusIdx = (statusIdx + 1) % statusMessages.length;
+        }, 300);
+    }
+    heroStatusEl.style.transition = 'opacity 0.3s ease';
+    setTimeout(() => {
+        rotateStatus();
+        setInterval(rotateStatus, 4000);
+    }, 6000); // After terminal animation
+
     // ─── LOADER ──────────────────────────────────────────────────────────────────
     const loaderMsgs = ['Initializing Mox...', 'Connecting to Mac mini...', 'Loading particles...', 'Brewing coffee... ☕', 'Ready.'];
     let loaderIdx = 0;
