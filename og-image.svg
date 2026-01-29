@@ -1,0 +1,38 @@
+<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#050505"/>
+      <stop offset="100%" style="stop-color:#0d0d0d"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f59e0b"/>
+      <stop offset="100%" style="stop-color:#ef4444"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <!-- Grid lines -->
+  <g opacity="0.05" stroke="#f59e0b" stroke-width="1">
+    <line x1="0" y1="0" x2="0" y2="630"/>
+    <line x1="60" y1="0" x2="60" y2="630"/>
+    <line x1="120" y1="0" x2="120" y2="630"/>
+    <line x1="180" y1="0" x2="180" y2="630"/>
+    <line x1="240" y1="0" x2="240" y2="630"/>
+    <line x1="300" y1="0" x2="300" y2="630"/>
+    <line x1="0" y1="60" x2="1200" y2="60"/>
+    <line x1="0" y1="120" x2="1200" y2="120"/>
+    <line x1="0" y1="180" x2="1200" y2="180"/>
+    <line x1="0" y1="240" x2="1200" y2="240"/>
+  </g>
+  <!-- Glow -->
+  <circle cx="900" cy="100" r="200" fill="#f59e0b" opacity="0.08" filter="blur(60px)"/>
+  <circle cx="300" cy="500" r="150" fill="#ef4444" opacity="0.06" filter="blur(50px)"/>
+  <!-- Text -->
+  <text x="600" y="260" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-weight="900" font-size="120" fill="url(#accent)">hey mox</text>
+  <text x="600" y="340" text-anchor="middle" font-family="Inter, sans-serif" font-weight="300" font-size="32" fill="#666">An AI that actually does shit.</text>
+  <!-- Badge -->
+  <rect x="460" y="380" width="280" height="40" rx="20" fill="rgba(245,158,11,0.1)" stroke="rgba(245,158,11,0.3)" stroke-width="1"/>
+  <circle cx="490" cy="400" r="5" fill="#22c55e"/>
+  <text x="510" y="406" font-family="Inter, sans-serif" font-weight="500" font-size="14" fill="#f59e0b" letter-spacing="1">ONLINE &amp; OPERATIONAL</text>
+  <!-- Footer -->
+  <text x="600" y="570" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="16" fill="#444">heymox.com — Sydney, Australia ⚡</text>
+</svg>

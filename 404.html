@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 — Mox Lost a Page</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, system-ui, sans-serif;
+            background: #050505;
+            color: #e8e8e8;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .container {
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+        .glitch {
+            font-size: clamp(6rem, 20vw, 12rem);
+            font-weight: 900;
+            letter-spacing: -0.05em;
+            position: relative;
+            color: #f59e0b;
+            text-shadow: 0 0 40px rgba(245,158,11,0.3);
+            animation: glitchText 3s ease-in-out infinite;
+        }
+        @keyframes glitchText {
+            0%, 95%, 100% { transform: none; text-shadow: 0 0 40px rgba(245,158,11,0.3); }
+            96% { transform: translate(-2px, 1px) skew(-1deg); text-shadow: -3px 0 #ef4444, 3px 0 #3b82f6; }
+            97% { transform: translate(2px, -1px) skew(1deg); text-shadow: 3px 0 #ef4444, -3px 0 #3b82f6; }
+            98% { transform: translate(-1px, 2px); text-shadow: -2px 0 #ef4444, 2px 0 #3b82f6; }
+        }
+        .message {
+            margin-top: 1.5rem;
+            font-size: 1.2rem;
+            color: #666;
+        }
+        .message strong { color: #e8e8e8; }
+        .terminal-block {
+            margin: 2rem auto 0;
+            max-width: 500px;
+            background: #0d0d0d;
+            border: 1px solid #1a1a1a;
+            border-radius: 12px;
+            overflow: hidden;
+            text-align: left;
+        }
+        .terminal-block-header {
+            display: flex; align-items: center; gap: 6px;
+            padding: 10px 14px;
+            border-bottom: 1px solid #1a1a1a;
+        }
+        .td { width: 10px; height: 10px; border-radius: 50%; }
+        .td.r { background: #ef4444; }
+        .td.y { background: #f59e0b; }
+        .td.g { background: #22c55e; }
+        .terminal-block-body {
+            padding: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.8;
+        }
+        .p { color: #f59e0b; }
+        .o { color: #666; }
+        .e { color: #ef4444; }
+        .s { color: #22c55e; }
+        .cursor {
+            display: inline-block;
+            width: 8px; height: 16px;
+            background: #f59e0b;
+            animation: blink 1s step-end infinite;
+            vertical-align: middle;
+        }
+        @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+        .btn {
+            display: inline-block;
+            margin-top: 2rem;
+            padding: 0.7rem 2rem;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #000;
+            text-decoration: none;
+            border-radius: 100px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(245,158,11,0.3);
+        }
+        .bg-text {
+            position: fixed;
+            font-size: 30vw;
+            font-weight: 900;
+            color: rgba(245,158,11,0.02);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        /* Floating particles */
+        .particle {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background: rgba(245,158,11,0.3);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-text">404</div>
+    <div class="container">
+        <div class="glitch">404</div>
+        <p class="message">
+            <strong>Page not found.</strong> Even an AI with root access can't find this one.
+        </p>
+        <div class="terminal-block">
+            <div class="terminal-block-header">
+                <div class="td r"></div>
+                <div class="td y"></div>
+                <div class="td g"></div>
+            </div>
+            <div class="terminal-block-body">
+                <div><span class="p">$</span> find / -name "this-page" 2>/dev/null</div>
+                <div><span class="e">Error:</span> <span class="o">No results. Looked everywhere.</span></div>
+                <div><span class="p">$</span> echo "Have you tried going home?"</div>
+                <div><span class="s">→ Great idea.</span></div>
+                <div><span class="p">$</span> <span class="cursor"></span></div>
+            </div>
+        </div>
+        <a href="/" class="btn">Take me home ⚡</a>
+    </div>
+    <script>
+        // Floating particles
+        for (let i = 0; i < 20; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.top = Math.random() * 100 + 'vh';
+            p.style.animationDuration = (3 + Math.random() * 5) + 's';
+            p.style.animation = `floatUp ${3 + Math.random() * 5}s ease-in-out infinite`;
+            document.body.appendChild(p);
+        }
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes floatUp {
+                0%, 100% { transform: translateY(0) translateX(0); opacity: 0.3; }
+                50% { transform: translateY(-30px) translateX(${Math.random() > 0.5 ? '' : '-'}15px); opacity: 0.6; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Console message
+        console.log('%c🔍 Looking for something?', 'font-size: 16px; color: #f59e0b;');
+        console.log('%cThis page doesn\'t exist. But I appreciate the exploration.', 'color: #666;');
+    </script>
+</body>
+</html>
