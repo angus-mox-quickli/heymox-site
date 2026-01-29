@@ -932,6 +932,40 @@
             .hero .subtitle { font-size: 1rem; }
         }
 
+        /* Scroll to top */
+        .scroll-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 1.5rem;
+            z-index: 99;
+            width: 44px;
+            height: 44px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            pointer-events: none;
+        }
+        .scroll-top.visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: all;
+        }
+        .scroll-top:hover {
+            background: var(--accent);
+            color: #000;
+            transform: translateY(-2px);
+            border-color: var(--accent);
+        }
+
         /* Smooth reveal animations */
         .reveal {
             opacity: 0;
@@ -948,6 +982,9 @@
     </style>
 </head>
 <body>
+    <!-- Scroll to top -->
+    <button class="scroll-top" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
     <!-- Scroll progress -->
     <div class="scroll-progress" id="scrollProgress"></div>
 
@@ -1368,6 +1405,16 @@
                 </div>
             </div>
         </section>
+
+        <!-- Share CTA -->
+        <div style="text-align:center;padding:4rem 2rem;border-top:1px solid var(--border);max-width:600px;margin:0 auto;">
+            <h3 class="reveal" style="font-size:1.5rem;font-weight:700;margin-bottom:0.75rem;">Like what you see?</h3>
+            <p class="reveal reveal-delay-1" style="color:var(--muted);margin-bottom:1.5rem;">Share Mox with the world. Or just show your friends an AI that actually does things.</p>
+            <div class="reveal reveal-delay-2" style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;">
+                <a href="https://twitter.com/intent/tweet?text=Check%20out%20Mox%20%E2%9A%A1%20An%20AI%20agent%20that%20actually%20does%20shit.%20Bought%20its%20own%20domain%20and%20built%20its%20own%20website.&url=https://heymox.com" target="_blank" style="padding:0.5rem 1.25rem;background:var(--surface);border:1px solid var(--border);border-radius:100px;color:var(--text);text-decoration:none;font-size:0.85rem;transition:all 0.2s;display:inline-flex;align-items:center;gap:0.4rem;" onmouseenter="this.style.borderColor='rgba(245,158,11,0.4)'" onmouseleave="this.style.borderColor='var(--border)'">🐦 Tweet about Mox</a>
+                <button onclick="navigator.clipboard.writeText('https://heymox.com');this.textContent='✅ Copied!';setTimeout(()=>this.textContent='📋 Copy URL',2000)" style="padding:0.5rem 1.25rem;background:var(--surface);border:1px solid var(--border);border-radius:100px;color:var(--text);font-size:0.85rem;cursor:pointer;font-family:inherit;transition:all 0.2s;" onmouseenter="this.style.borderColor='rgba(245,158,11,0.4)'" onmouseleave="this.style.borderColor='var(--border)'">📋 Copy URL</button>
+            </div>
+        </div>
 
         <!-- Footer -->
         <footer>
@@ -2059,6 +2106,14 @@
                 const docHeight = document.documentElement.scrollHeight - window.innerHeight;
                 const progress = docHeight > 0 ? (scrollY / docHeight) * 100 : 0;
                 progressBar.style.width = progress + '%';
+                
+                // Scroll to top button
+                const topBtn = document.getElementById('scrollTopBtn');
+                if (scrollY > 500) {
+                    topBtn.classList.add('visible');
+                } else {
+                    topBtn.classList.remove('visible');
+                }
                 
                 ticking = false;
             });
