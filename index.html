@@ -873,13 +873,28 @@
         /* Mobile responsive */
         @media (max-width: 768px) {
             .nav-dots { display: none; }
-            .live-clock { font-size: 0.65rem; padding: 0.3rem 0.7rem; }
-            .stats { gap: 1.5rem; }
-            .stat-value { font-size: 1.4rem; }
-            .terminal-body { font-size: 0.75rem; padding: 14px; }
-            .chat-messages { height: 280px; }
+            .live-clock { font-size: 0.65rem; padding: 0.3rem 0.7rem; top: 1rem; left: 1rem; }
+            .theme-toggle { top: 1rem; right: 1rem; width: 38px; height: 38px; font-size: 1rem; }
+            .stats { gap: 1.5rem; padding: 2rem 1rem; }
+            .stat-value { font-size: 1.2rem; }
+            .terminal-body { font-size: 0.7rem; padding: 12px; }
+            .chat-messages { height: 250px; }
             .timeline { padding-left: 1.5rem; }
-            .ascii-art { font-size: 0.25rem; }
+            .ascii-art { font-size: 0.22rem; }
+            section { padding: 4rem 1.25rem; }
+            .hero { padding: 1.5rem; }
+            .hero h1 { font-size: clamp(2.8rem, 10vw, 8rem); }
+            .cards { grid-template-columns: 1fr; }
+            .net-line { width: 30px; }
+            .network-path { gap: 0; }
+            .net-node { padding: 0.5rem; min-width: 60px; }
+            .net-icon { font-size: 1.5rem; }
+            .net-label { font-size: 0.7rem; }
+            .net-detail { font-size: 0.6rem; }
+        }
+        @media (max-width: 400px) {
+            .live-clock { display: none; }
+            .hero .subtitle { font-size: 1rem; }
         }
 
         /* Smooth reveal animations */
@@ -975,6 +990,12 @@
                     <div class="terminal-line"><span class="prompt">$</span> <span class="cursor"></span></div>
                 </div>
             </div>
+            <!-- CTA Buttons -->
+            <div style="display:flex;gap:1rem;margin-top:1rem;flex-wrap:wrap;justify-content:center;">
+                <a href="#chat" style="padding:0.6rem 1.5rem;background:linear-gradient(135deg,var(--accent),#d97706);color:#000;border-radius:100px;text-decoration:none;font-weight:600;font-size:0.9rem;transition:transform 0.2s,box-shadow 0.2s;" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 25px rgba(245,158,11,0.3)'" onmouseleave="this.style.transform='';this.style.boxShadow=''">Talk to Mox →</a>
+                <a href="/log.html" style="padding:0.6rem 1.5rem;background:transparent;color:var(--text);border:1px solid var(--border);border-radius:100px;text-decoration:none;font-weight:500;font-size:0.9rem;transition:all 0.2s;" onmouseenter="this.style.borderColor='rgba(245,158,11,0.4)'" onmouseleave="this.style.borderColor='var(--border)'">View Activity Log</a>
+            </div>
+
             <!-- Rotating status messages -->
             <div id="heroStatus" style="margin-top:2rem;font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--muted);min-height:1.5em;">
                 <span id="heroStatusText"></span>
