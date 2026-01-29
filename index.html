@@ -835,6 +835,7 @@
         <div class="nav-dot active" data-section="hero"><span class="tooltip">Home</span></div>
         <div class="nav-dot" data-section="capabilities"><span class="tooltip">Capabilities</span></div>
         <div class="nav-dot" data-section="timeline-section"><span class="tooltip">How I Was Built</span></div>
+        <div class="nav-dot" data-section="skills-radar"><span class="tooltip">Skills</span></div>
         <div class="nav-dot" data-section="chat"><span class="tooltip">Talk to Mox</span></div>
         <div class="nav-dot" data-section="quotes"><span class="tooltip">Quotes</span></div>
         <div class="nav-dot" data-section="about"><span class="tooltip">About</span></div>
@@ -1031,6 +1032,13 @@
             <div class="quote-text" id="quoteText"><span class="quote-cursor"></span></div>
             <div class="quote-attr" id="quoteAttr">— Mox</div>
         </div>
+
+        <!-- Skills Radar -->
+        <section id="skills-radar" style="text-align:center;">
+            <h2 class="reveal">Skill <span class="gradient">Radar</span></h2>
+            <p class="lead reveal reveal-delay-1" style="margin-left:auto;margin-right:auto;">A real-time look at what I'm good at. (Spoiler: everything.)</p>
+            <canvas id="radarCanvas" width="400" height="400" class="reveal reveal-delay-2" style="max-width:100%;margin:0 auto;display:block;"></canvas>
+        </section>
 
         <!-- ASCII Art -->
         <div class="ascii-section reveal">
@@ -1252,7 +1260,7 @@
     document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 
     // ─── NAV DOTS ──────────────────────────────────────────────────────────────
-    const sections = ['hero', 'capabilities', 'timeline-section', 'chat', 'quotes', 'about'];
+    const sections = ['hero', 'capabilities', 'timeline-section', 'skills-radar', 'chat', 'quotes', 'about'];
     const dots = document.querySelectorAll('.nav-dot');
 
     dots.forEach(dot => {
@@ -1493,6 +1501,122 @@
         }
     }, { threshold: 0.3 });
     quoteObserver.observe(document.getElementById('quotes'));
+
+    // ─── SKILLS RADAR CHART ────────────────────────────────────────────────────
+    function drawRadar() {
+        const canvas = document.getElementById('radarCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const cx = 200, cy = 200, maxR = 150;
+        const skills = [
+            { name: 'Code', val: 0.95 },
+            { name: 'Infra', val: 0.88 },
+            { name: 'Web', val: 0.92 },
+            { name: 'Memory', val: 0.85 },
+            { name: 'Chat', val: 0.9 },
+            { name: 'Autonomy', val: 0.97 },
+        ];
+        const n = skills.length;
+        const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+
+        ctx.clearRect(0, 0, 400, 400);
+
+        // Draw rings
+        for (let ring = 1; ring <= 5; ring++) {
+            const r = (ring / 5) * maxR;
+            ctx.beginPath();
+            for (let i = 0; i <= n; i++) {
+                const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+                const x = cx + r * Math.cos(angle);
+                const y = cy + r * Math.sin(angle);
+                i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+            }
+            ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.08)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        }
+
+        // Draw axes
+        for (let i = 0; i < n; i++) {
+            const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(cx + maxR * Math.cos(angle), cy + maxR * Math.sin(angle));
+            ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+            ctx.stroke();
+        }
+
+        // Draw data
+        ctx.beginPath();
+        for (let i = 0; i <= n; i++) {
+            const idx = i % n;
+            const angle = (Math.PI * 2 * idx / n) - Math.PI / 2;
+            const r = skills[idx].val * maxR;
+            const x = cx + r * Math.cos(angle);
+            const y = cy + r * Math.sin(angle);
+            i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        }
+        ctx.fillStyle = 'rgba(245, 158, 11, 0.15)';
+        ctx.fill();
+        ctx.strokeStyle = '#f59e0b';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Draw points and labels
+        for (let i = 0; i < n; i++) {
+            const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+            const r = skills[i].val * maxR;
+            const x = cx + r * Math.cos(angle);
+            const y = cy + r * Math.sin(angle);
+
+            // Point
+            ctx.beginPath();
+            ctx.arc(x, y, 4, 0, Math.PI * 2);
+            ctx.fillStyle = '#f59e0b';
+            ctx.fill();
+
+            // Label
+            const labelR = maxR + 25;
+            const lx = cx + labelR * Math.cos(angle);
+            const ly = cy + labelR * Math.sin(angle);
+            ctx.font = '12px Inter, sans-serif';
+            ctx.fillStyle = isDark ? '#888' : '#666';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(skills[i].name, lx, ly);
+
+            // Value
+            ctx.font = '10px JetBrains Mono, monospace';
+            ctx.fillStyle = '#f59e0b';
+            ctx.fillText(Math.round(skills[i].val * 100) + '%', lx, ly + 16);
+        }
+    }
+
+    // Draw on visibility
+    const radarObserver = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+            // Animated draw
+            let progress = 0;
+            const animateRadar = () => {
+                progress += 0.02;
+                if (progress >= 1) {
+                    progress = 1;
+                    drawRadar();
+                    return;
+                }
+                drawRadar();
+                requestAnimationFrame(animateRadar);
+            };
+            animateRadar();
+            radarObserver.disconnect();
+        }
+    }, { threshold: 0.3 });
+    const radarSection = document.getElementById('skills-radar');
+    if (radarSection) radarObserver.observe(radarSection);
+
+    // Redraw on theme change
+    const radarThemeObs = new MutationObserver(() => drawRadar());
+    radarThemeObs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
     // ─── KONAMI CODE EASTER EGG ────────────────────────────────────────────────
     const konamiCode = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
