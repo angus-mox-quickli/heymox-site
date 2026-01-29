@@ -2249,6 +2249,58 @@
         if (!audioCtx) initAudio();
     }, { once: true });
 
+    // Ambient drone generator (only when sound is enabled)
+    let ambientPlaying = false;
+    function startAmbient() {
+        if (!audioCtx || ambientPlaying) return;
+        ambientPlaying = true;
+        
+        // Create a subtle ambient drone
+        const osc1 = audioCtx.createOscillator();
+        const osc2 = audioCtx.createOscillator();
+        const gain1 = audioCtx.createGain();
+        const gain2 = audioCtx.createGain();
+        const filter = audioCtx.createBiquadFilter();
+        
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(60, audioCtx.currentTime);
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(90, audioCtx.currentTime);
+        
+        gain1.gain.setValueAtTime(0.008, audioCtx.currentTime);
+        gain2.gain.setValueAtTime(0.005, audioCtx.currentTime);
+        
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(200, audioCtx.currentTime);
+        
+        osc1.connect(gain1).connect(filter).connect(audioCtx.destination);
+        osc2.connect(gain2).connect(filter);
+        
+        osc1.start();
+        osc2.start();
+        
+        // Subtle frequency modulation
+        const lfo = audioCtx.createOscillator();
+        const lfoGain = audioCtx.createGain();
+        lfo.frequency.setValueAtTime(0.1, audioCtx.currentTime);
+        lfoGain.gain.setValueAtTime(5, audioCtx.currentTime);
+        lfo.connect(lfoGain).connect(osc1.frequency);
+        lfo.start();
+        
+        window._ambientOscs = [osc1, osc2, lfo];
+        window._ambientGains = [gain1, gain2];
+    }
+    
+    function stopAmbient() {
+        if (window._ambientOscs) {
+            window._ambientGains.forEach(g => g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1));
+            setTimeout(() => {
+                window._ambientOscs.forEach(o => { try { o.stop(); } catch(e) {} });
+                ambientPlaying = false;
+            }, 1000);
+        }
+    }
+
     // Add subtle hover sounds to cards
     document.querySelectorAll('.card, .chat-suggestion, .nav-dot').forEach(el => {
         el.addEventListener('mouseenter', playHover);
@@ -2270,7 +2322,12 @@
         initAudio();
         soundEnabled = !soundEnabled;
         soundBtn.textContent = soundEnabled ? '🔊' : '🔇';
-        if (soundEnabled) playSuccess();
+        if (soundEnabled) {
+            playSuccess();
+            startAmbient();
+        } else {
+            stopAmbient();
+        }
     });
     document.body.appendChild(soundBtn);
 
