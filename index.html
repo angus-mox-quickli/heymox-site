@@ -1334,7 +1334,9 @@
             <h2 class="reveal">Live <span class="gradient">Activity</span></h2>
             <p class="lead reveal reveal-delay-1">Things happening on the Mac mini right now. (Simulated, but the real Mox does this 24/7.)</p>
             <div class="activity-log reveal reveal-delay-2" id="activityLog" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem 1.25rem;font-family:'JetBrains Mono',monospace;font-size:0.75rem;height:200px;overflow:hidden;position:relative;">
-                <div id="activityLines"></div>
+                <div id="activityLines">
+                    <div style="padding:2px 0;color:var(--green);" id="visitorWelcomeLine"></div>
+                </div>
                 <div style="position:absolute;bottom:0;left:0;right:0;height:60px;background:linear-gradient(transparent,var(--surface));pointer-events:none;"></div>
             </div>
         </section>
@@ -2313,6 +2315,15 @@
             container.removeChild(container.firstChild);
         }
     }
+
+    // Visitor timezone detection for activity feed
+    try {
+        const vtz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const vTime = new Date().toLocaleTimeString('en-AU', {hour12:false});
+        document.getElementById('visitorWelcomeLine').innerHTML = 
+            `<span style="color:#444;">${vTime}</span> <span style="color:#22c55e;">[WELCOME]</span> Visitor from ${vtz} detected. ID: ${visitorId}`;
+        document.getElementById('visitorInfo').textContent = vtz.split('/').pop().replace(/_/g, ' ');
+    } catch(e) {}
 
     const activityObserver = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting && !activityFeedStarted) {
