@@ -2415,6 +2415,31 @@
     console.log('%cTry the Konami Code on the page: ↑↑↓↓←→←→BA', 'font-size: 12px; color: #22c55e;');
     console.log('%cOr click the "hey mox" title 7 times. 🌈', 'font-size: 12px; color: #a855f7;');
     console.log('%cPress Ctrl+K for the command palette.', 'font-size: 12px; color: #3b82f6;');
+    console.log('%cType "debug" anywhere for debug mode.', 'font-size: 12px; color: #ef4444;');
+
+    // ─── SECRET WORD DETECTION ──────────────────────────────────────────────────
+    let secretBuffer = '';
+    document.addEventListener('keypress', e => {
+        if (e.target.tagName === 'INPUT') return;
+        secretBuffer += e.key;
+        secretBuffer = secretBuffer.slice(-10);
+        
+        if (secretBuffer.endsWith('debug')) {
+            document.body.style.outline = '1px solid rgba(245,158,11,0.3)';
+            document.querySelectorAll('*').forEach(el => {
+                el.style.outline = '1px solid rgba(245,158,11,0.1)';
+            });
+            const debugBanner = document.createElement('div');
+            debugBanner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:var(--accent);color:#000;text-align:center;padding:6px;font-family:"JetBrains Mono",monospace;font-size:0.75rem;font-weight:600;';
+            debugBanner.textContent = '🔧 DEBUG MODE — You found the secret! All elements outlined. Refresh to exit.';
+            document.body.appendChild(debugBanner);
+        }
+        
+        if (secretBuffer.endsWith('party')) {
+            confettiBurst();
+            if (soundEnabled) playSuccess();
+        }
+    });
 
     // ─── COMMAND PALETTE (Ctrl+K) ──────────────────────────────────────────────
     const palette = document.createElement('div');
@@ -2590,6 +2615,44 @@
             endMiniGame();
         }
     });
+
+    // ─── CONFETTI BURST ───────────────────────────────────────────────────────
+    function confettiBurst() {
+        const colors = ['#f59e0b', '#ef4444', '#22c55e', '#3b82f6', '#a855f7', '#ec4899'];
+        for (let i = 0; i < 50; i++) {
+            const confetti = document.createElement('div');
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.cssText = `
+                position:fixed;
+                left:50%;top:50%;
+                width:${4 + Math.random() * 8}px;
+                height:${4 + Math.random() * 8}px;
+                background:${color};
+                border-radius:${Math.random() > 0.5 ? '50%' : '2px'};
+                pointer-events:none;
+                z-index:99999;
+                opacity:1;
+                transition:all ${0.8 + Math.random() * 1.2}s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            `;
+            document.body.appendChild(confetti);
+            requestAnimationFrame(() => {
+                confetti.style.left = `${50 + (Math.random() - 0.5) * 100}%`;
+                confetti.style.top = `${50 + (Math.random() - 0.5) * 100}%`;
+                confetti.style.opacity = '0';
+                confetti.style.transform = `rotate(${Math.random() * 720}deg)`;
+            });
+            setTimeout(() => confetti.remove(), 2000);
+        }
+    }
+
+    // Double-click the ⚡ bolt in the footer for confetti
+    document.querySelector('footer .bolt').addEventListener('dblclick', () => {
+        confettiBurst();
+        if (soundEnabled) playSuccess();
+    });
+
+    // Add confetti to game end
+    const origEndGame = endMiniGame;
 
     // Add mini game to command palette
     commands.push({ name: '🎮 Mini Game (Catch the Bolt)', action: () => { closePalette(); setTimeout(startMiniGame, 300); }});
