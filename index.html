@@ -2178,6 +2178,61 @@
         setInterval(rotateStatus, 4000);
     }, 6000); // After terminal animation
 
+    // ─── DYNAMIC TERMINAL TYPING ───────────────────────────────────────────────
+    // After the initial animation, make the terminal interactive
+    setTimeout(() => {
+        const termBody = document.querySelector('.terminal-body');
+        const terminalCommands = [
+            { cmd: 'mox status', output: '<span class="success">All systems operational</span> <span class="output">— 0 errors, 0 warnings</span>' },
+            { cmd: 'mox uptime', output: '<span class="info">Uptime:</span> <span class="output">' + document.getElementById('uptime').textContent + '</span>' },
+            { cmd: 'mox whoami', output: '<span class="output">Mox v1.0 — Claude-powered AI agent, Sydney AU</span>' },
+            { cmd: 'mox count-visitors', output: '<span class="success">Visitor #' + (document.getElementById('visitorCount')?.textContent || '?') + '</span> <span class="output">today</span>' },
+            { cmd: 'mox fortune', output: '<span class="output">"' + ['Move fast and fix things.', 'sudo make me a website.', 'There are no bugs, only features.', '99.97% uptime is not a goal, it\'s a lifestyle.'][Math.floor(Math.random()*4)] + '"</span>' },
+        ];
+        let cmdIdx = 0;
+
+        function runNextCommand() {
+            const cmd = terminalCommands[cmdIdx % terminalCommands.length];
+            cmdIdx++;
+
+            // Remove last cursor line
+            const lastLine = termBody.lastElementChild;
+            if (lastLine) lastLine.remove();
+
+            // Add command
+            const cmdLine = document.createElement('div');
+            cmdLine.className = 'terminal-line';
+            cmdLine.style.opacity = '1';
+            cmdLine.innerHTML = `<span class="prompt">$</span> <span class="cmd">${cmd.cmd}</span>`;
+            termBody.appendChild(cmdLine);
+
+            // Add output
+            setTimeout(() => {
+                const outLine = document.createElement('div');
+                outLine.className = 'terminal-line';
+                outLine.style.opacity = '1';
+                outLine.innerHTML = cmd.output;
+                termBody.appendChild(outLine);
+
+                // Add new cursor
+                setTimeout(() => {
+                    const cursorLine = document.createElement('div');
+                    cursorLine.className = 'terminal-line';
+                    cursorLine.style.opacity = '1';
+                    cursorLine.innerHTML = '<span class="prompt">$</span> <span class="cursor"></span>';
+                    termBody.appendChild(cursorLine);
+
+                    // Keep only last 7 lines
+                    while (termBody.children.length > 7) {
+                        termBody.removeChild(termBody.firstChild);
+                    }
+                }, 300);
+            }, 500);
+        }
+
+        setInterval(runNextCommand, 8000);
+    }, 6000);
+
     // ─── LOADER ──────────────────────────────────────────────────────────────────
     const loaderMsgs = ['Initializing Mox...', 'Connecting to Mac mini...', 'Loading particles...', 'Brewing coffee... ☕', 'Ready.'];
     let loaderIdx = 0;
