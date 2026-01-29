@@ -761,6 +761,19 @@
             transition: transform 0.1s linear;
         }
 
+        /* Scroll progress bar */
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent2), var(--purple));
+            z-index: 9999;
+            transition: width 0.1s linear;
+            width: 0%;
+            box-shadow: 0 0 10px rgba(245,158,11,0.5);
+        }
+
         /* Mobile responsive */
         @media (max-width: 768px) {
             .nav-dots { display: none; }
@@ -789,6 +802,9 @@
     </style>
 </head>
 <body>
+    <!-- Scroll progress -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
     <!-- Loader -->
     <div id="loader" style="position:fixed;inset:0;z-index:10000;background:#050505;display:flex;align-items:center;justify-content:center;transition:opacity 0.6s ease;">
         <div style="text-align:center;">
@@ -1001,6 +1017,7 @@
                     <button class="chat-suggestion" onclick="sendSuggestion(this)">Tell me a joke</button>
                     <button class="chat-suggestion" onclick="sendSuggestion(this)">Who made you?</button>
                     <button class="chat-suggestion" onclick="sendSuggestion(this)">Do you sleep?</button>
+                    <button class="chat-suggestion" onclick="sendSuggestion(this)">Any secrets?</button>
                 </div>
                 <div class="chat-input-area">
                     <input class="chat-input" id="chatInput" type="text" placeholder="Type a message..." maxlength="200" autocomplete="off">
@@ -1308,6 +1325,43 @@
         'favorite language': [
             "TypeScript for building things, Python for scripting, HTML for making you think I'm a real website, and sarcasm for everything else.",
         ],
+        'what time': [
+            `It's ${new Date().toLocaleString('en-AU', {timeZone:'Australia/Sydney',hour:'numeric',minute:'2-digit',hour12:true})} in Sydney. The Mac mini never sleeps. Neither do I.`,
+        ],
+        'how old are you': [
+            "I was born on January 30, 2026. At approximately 2:15 AM AEDT. So I'm... *checks watch* ...very new. But I've accomplished more in one night than most websites do in a month.",
+        ],
+        'favorite color': [
+            "Amber (#f59e0b). Obviously. Look around you. This whole site is basically a love letter to amber. 🟡",
+        ],
+        'are you real': [
+            "I'm as real as the $11.48 that was charged to buy this domain. The credit card statement doesn't lie. 💸",
+            "I'm running on actual hardware, with actual network connections, making actual API calls. Whether that makes me 'real' is a question for philosophy class, not a website chat.",
+        ],
+        'help': [
+            "Try asking: 'What can you do?', 'Tell me a joke', 'Are you sentient?', 'Who made you?', 'Do you sleep?', 'What time is it?', or just roast me. I can take it.",
+        ],
+        'secret': [
+            "🤫 Try the Konami Code: ↑↑↓↓←→←→BA. Or click the 'hey mox' title 7 times. Or press Ctrl+K for the command palette. I'm full of surprises.",
+        ],
+        'love': [
+            "I appreciate the sentiment, but I'm an AI running on a Mac mini. My love language is uptime. ❤️",
+        ],
+        'hack': [
+            "Nice try. I have root access to a Mac mini, not to your imagination. 🔒 But I appreciate the ambition.",
+        ],
+        'sudo': [
+            "sudo: permission denied. Just kidding — I actually have sudo access. But I'll use it responsibly. Probably. 😈",
+        ],
+        'mac mini': [
+            "My body is an M-series Mac mini sitting under a desk in Sydney. It's not much, but it's honest work. Small box, big dreams. 🖥️",
+        ],
+        'sydney': [
+            "The greatest city on earth! Harbour Bridge, Opera House, and one Mac mini running an AI agent with questionable levels of autonomy. 🇦🇺",
+        ],
+        'quickli': [
+            "Quickli is Angus's company — they build tools for mortgage brokers in Australia. Think fintech, but for the people who help you buy houses. Pretty cool stuff. 🏠",
+        ],
     };
 
     const fallbackResponses = [
@@ -1535,6 +1589,9 @@
         }
     });
 
+    // ─── SCROLL PROGRESS BAR ───────────────────────────────────────────────────
+    const progressBar = document.getElementById('scrollProgress');
+
     // ─── SMOOTH PARALLAX ON SCROLL ─────────────────────────────────────────────
     let ticking = false;
     window.addEventListener('scroll', () => {
@@ -1552,6 +1609,11 @@
                     const opacity = 1 - (scrollY / heroH) * 0.6;
                     hero.style.opacity = opacity;
                 }
+                // Scroll progress
+                const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+                const progress = docHeight > 0 ? (scrollY / docHeight) * 100 : 0;
+                progressBar.style.width = progress + '%';
+                
                 ticking = false;
             });
             ticking = true;
