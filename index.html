@@ -2138,6 +2138,120 @@
         renderCommands(e.target.value);
     });
 
+    // ─── MINI GAME (Ctrl+G) ───────────────────────────────────────────────────
+    let gameActive = false;
+    let gameScore = 0;
+    let gameTimer;
+    let gameBolt;
+    
+    function startMiniGame() {
+        if (gameActive) return;
+        gameActive = true;
+        gameScore = 0;
+        
+        const overlay = document.createElement('div');
+        overlay.id = 'miniGame';
+        overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(5,5,5,0.95);display:flex;flex-direction:column;align-items:center;justify-content:center;';
+        overlay.innerHTML = `
+            <div style="text-align:center;margin-bottom:2rem;">
+                <h2 style="font-size:2rem;margin-bottom:0.5rem;">⚡ Catch the Bolt!</h2>
+                <p style="color:var(--muted);">Click the ⚡ as many times as you can in 15 seconds.</p>
+                <div style="margin-top:1rem;">
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:2rem;color:var(--accent);" id="gameScoreDisplay">0</span>
+                    <span style="color:var(--muted);font-size:0.8rem;display:block;">points</span>
+                </div>
+                <div style="margin-top:0.5rem;font-family:'JetBrains Mono',monospace;color:var(--accent2);" id="gameTimerDisplay">15s</div>
+            </div>
+            <div id="gameArea" style="width:min(500px,90vw);height:300px;background:var(--surface);border:1px solid var(--border);border-radius:12px;position:relative;overflow:hidden;cursor:crosshair;">
+            </div>
+            <button onclick="endMiniGame()" style="margin-top:1.5rem;padding:0.5rem 1.5rem;background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:8px;cursor:pointer;font-family:inherit;">Press ESC or click to quit</button>
+        `;
+        document.body.appendChild(overlay);
+
+        const area = document.getElementById('gameArea');
+        gameBolt = document.createElement('div');
+        gameBolt.textContent = '⚡';
+        gameBolt.style.cssText = 'position:absolute;font-size:2rem;cursor:pointer;transition:none;user-select:none;';
+        area.appendChild(gameBolt);
+
+        function moveBolt() {
+            const maxX = area.clientWidth - 40;
+            const maxY = area.clientHeight - 40;
+            gameBolt.style.left = Math.random() * maxX + 'px';
+            gameBolt.style.top = Math.random() * maxY + 'px';
+            gameBolt.style.transform = `rotate(${Math.random()*360}deg)`;
+        }
+        moveBolt();
+
+        gameBolt.addEventListener('click', (e) => {
+            e.stopPropagation();
+            gameScore++;
+            document.getElementById('gameScoreDisplay').textContent = gameScore;
+            // Sparkle effect
+            for (let i = 0; i < 5; i++) {
+                const spark = document.createElement('div');
+                const boltRect = gameBolt.getBoundingClientRect();
+                const areaRect = area.getBoundingClientRect();
+                spark.textContent = '✨';
+                spark.style.cssText = `position:absolute;left:${boltRect.left - areaRect.left + 10}px;top:${boltRect.top - areaRect.top + 10}px;pointer-events:none;font-size:0.8rem;transition:all 0.5s ease;opacity:1;`;
+                area.appendChild(spark);
+                requestAnimationFrame(() => {
+                    spark.style.transform = `translate(${(Math.random()-0.5)*80}px, ${(Math.random()-0.5)*80}px)`;
+                    spark.style.opacity = '0';
+                });
+                setTimeout(() => spark.remove(), 500);
+            }
+            moveBolt();
+            if (soundEnabled) playClick();
+        });
+
+        let timeLeft = 15;
+        gameTimer = setInterval(() => {
+            timeLeft--;
+            document.getElementById('gameTimerDisplay').textContent = timeLeft + 's';
+            if (timeLeft <= 0) {
+                endMiniGame();
+            }
+        }, 1000);
+    }
+
+    function endMiniGame() {
+        clearInterval(gameTimer);
+        const el = document.getElementById('miniGame');
+        if (el) {
+            el.innerHTML = `
+                <div style="text-align:center;">
+                    <h2 style="font-size:2rem;margin-bottom:1rem;">Game Over!</h2>
+                    <div style="font-size:4rem;margin-bottom:1rem;">${gameScore >= 20 ? '🏆' : gameScore >= 10 ? '⚡' : '😅'}</div>
+                    <p style="font-family:'JetBrains Mono',monospace;font-size:2.5rem;color:var(--accent);">${gameScore}</p>
+                    <p style="color:var(--muted);margin-top:0.5rem;">${
+                        gameScore >= 20 ? 'Incredible! You\'re faster than my CPU!' :
+                        gameScore >= 15 ? 'Impressive reflexes! Almost AI-level.' :
+                        gameScore >= 10 ? 'Not bad for a human!' :
+                        gameScore >= 5 ? 'Keep practicing. I believe in you.' :
+                        'Were you even trying? 😄'
+                    }</p>
+                    <button onclick="document.getElementById('miniGame').remove();gameActive=false;" style="margin-top:2rem;padding:0.6rem 2rem;background:var(--accent);color:#000;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-family:inherit;">Nice</button>
+                </div>
+            `;
+            if (soundEnabled) playSuccess();
+        }
+        gameActive = false;
+    }
+
+    document.addEventListener('keydown', e => {
+        if (e.ctrlKey && e.key === 'g') {
+            e.preventDefault();
+            startMiniGame();
+        }
+        if (e.key === 'Escape' && gameActive) {
+            endMiniGame();
+        }
+    });
+
+    // Add mini game to command palette
+    commands.push({ name: '🎮 Mini Game (Catch the Bolt)', action: () => { closePalette(); setTimeout(startMiniGame, 300); }});
+
     // ─── CURSOR TRAIL (subtle) ─────────────────────────────────────────────────
     let lastTrail = 0;
     document.addEventListener('mousemove', e => {
