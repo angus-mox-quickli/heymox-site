@@ -2861,6 +2861,19 @@
     // Add mini game to command palette
     commands.push({ name: '🎮 Mini Game (Catch the Bolt)', action: () => { closePalette(); setTimeout(startMiniGame, 300); }});
 
+    // ─── MAGNETIC BUTTONS ─────────────────────────────────────────────────────
+    document.querySelectorAll('a[href="#chat"], .chat-send, .scroll-top').forEach(btn => {
+        btn.addEventListener('mousemove', e => {
+            const rect = btn.getBoundingClientRect();
+            const x = e.clientX - rect.left - rect.width / 2;
+            const y = e.clientY - rect.top - rect.height / 2;
+            btn.style.transform = `translate(${x * 0.15}px, ${y * 0.15}px)`;
+        });
+        btn.addEventListener('mouseleave', () => {
+            btn.style.transform = '';
+        });
+    });
+
     // ─── 3D CARD TILT EFFECT ───────────────────────────────────────────────────
     document.querySelectorAll('.card, .stack-item').forEach(card => {
         card.addEventListener('mousemove', e => {
