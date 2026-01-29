@@ -1045,7 +1045,7 @@
                 <div class="stat-label">Brain</div>
             </div>
             <div class="stat">
-                <div class="stat-value" id="lineCount">~800</div>
+                <div class="stat-value" id="lineCount">2,754</div>
                 <div class="stat-label">Lines of Code</div>
             </div>
             <div class="stat">
@@ -2018,6 +2018,29 @@
         if (soundEnabled) playSuccess();
     });
     document.body.appendChild(soundBtn);
+
+    // ─── KEYBOARD SHORTCUT HINT ────────────────────────────────────────────────
+    // Show keyboard shortcuts on first visit
+    if (!localStorage.getItem('moxShortcutsShown')) {
+        setTimeout(() => {
+            const hint = document.createElement('div');
+            hint.style.cssText = 'position:fixed;bottom:1.5rem;right:1.5rem;z-index:999;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem 1.25rem;font-size:0.75rem;color:var(--muted);max-width:280px;box-shadow:0 10px 30px rgba(0,0,0,0.3);opacity:0;transition:opacity 0.3s;';
+            hint.innerHTML = `
+                <div style="font-weight:600;color:var(--text);margin-bottom:0.5rem;">⌨️ Keyboard Shortcuts</div>
+                <div style="display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-family:'JetBrains Mono',monospace;font-size:0.65rem;">
+                    <span style="color:var(--accent);">⌘K</span><span>Command palette</span>
+                    <span style="color:var(--accent);">⌘G</span><span>Mini game</span>
+                    <span style="color:var(--accent);">↑↑↓↓←→←→BA</span><span>Konami code</span>
+                </div>
+                <button onclick="this.parentElement.remove()" style="margin-top:0.75rem;padding:4px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);cursor:pointer;font-size:0.7rem;font-family:inherit;">Got it</button>
+            `;
+            document.body.appendChild(hint);
+            requestAnimationFrame(() => hint.style.opacity = '1');
+            localStorage.setItem('moxShortcutsShown', '1');
+            // Auto dismiss after 8s
+            setTimeout(() => { if (hint.parentElement) { hint.style.opacity = '0'; setTimeout(() => hint.remove(), 300); } }, 8000);
+        }, 4000);
+    }
 
     // ─── PAGE VISIBILITY TAB TITLE ─────────────────────────────────────────────
     const originalTitle = document.title;
