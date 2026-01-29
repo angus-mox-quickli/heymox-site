@@ -789,6 +789,16 @@
     </style>
 </head>
 <body>
+    <!-- Loader -->
+    <div id="loader" style="position:fixed;inset:0;z-index:10000;background:#050505;display:flex;align-items:center;justify-content:center;transition:opacity 0.6s ease;">
+        <div style="text-align:center;">
+            <div style="font-size:3rem;margin-bottom:1rem;animation:pulse 1s ease-in-out infinite;">⚡</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:#666;">
+                <span id="loaderText">Initializing Mox...</span>
+            </div>
+        </div>
+    </div>
+
     <canvas id="particle-canvas"></canvas>
     <canvas id="matrix-canvas"></canvas>
     <div class="orb orb-1"></div>
@@ -1036,6 +1046,7 @@
             <div class="bolt">⚡</div>
             <p>heymox.com — powered by caffeine, Claude, and questionable decisions</p>
             <p style="margin-top: 0.5rem;">
+                <a href="/log.html">Activity Log</a> ·
                 <a href="https://github.com/angus-mox-quickli" target="_blank">GitHub</a> ·
                 <a href="https://x.com/anguskeatinge" target="_blank">Twitter</a> ·
                 <a href="https://quickli.com.au" target="_blank">Quickli</a>
@@ -1548,11 +1559,182 @@
     });
 
     // ─── CONSOLE EASTER EGG ────────────────────────────────────────────────────
+    // ─── SOUND EFFECTS (Web Audio API — no files needed) ──────────────────────
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    let audioCtx;
+    let soundEnabled = false;
+
+    function initAudio() {
+        if (!audioCtx) audioCtx = new AudioCtx();
+    }
+
+    function playTone(freq, duration = 0.1, type = 'sine', vol = 0.05) {
+        if (!soundEnabled || !audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function playClick() { playTone(800, 0.05, 'sine', 0.03); }
+    function playHover() { playTone(600, 0.03, 'sine', 0.02); }
+    function playSuccess() {
+        playTone(523, 0.1, 'sine', 0.04);
+        setTimeout(() => playTone(659, 0.1, 'sine', 0.04), 100);
+        setTimeout(() => playTone(784, 0.15, 'sine', 0.04), 200);
+    }
+
+    // Sound toggle in the theme area
+    document.addEventListener('click', () => {
+        if (!audioCtx) initAudio();
+    }, { once: true });
+
+    // Add subtle hover sounds to cards
+    document.querySelectorAll('.card, .chat-suggestion, .nav-dot').forEach(el => {
+        el.addEventListener('mouseenter', playHover);
+        el.addEventListener('click', playClick);
+    });
+
+    // Chat send sound
+    const origSendMessage = sendMessage;
+    // Konami success sound
+    const origActivate = activateEasterEgg;
+
+    // ─── SOUND TOGGLE BUTTON ───────────────────────────────────────────────────
+    const soundBtn = document.createElement('button');
+    soundBtn.className = 'theme-toggle';
+    soundBtn.style.right = '4.5rem';
+    soundBtn.title = 'Toggle sounds';
+    soundBtn.textContent = '🔇';
+    soundBtn.addEventListener('click', () => {
+        initAudio();
+        soundEnabled = !soundEnabled;
+        soundBtn.textContent = soundEnabled ? '🔊' : '🔇';
+        if (soundEnabled) playSuccess();
+    });
+    document.body.appendChild(soundBtn);
+
+    // ─── PAGE VISIBILITY TAB TITLE ─────────────────────────────────────────────
+    const originalTitle = document.title;
+    document.addEventListener('visibilitychange', () => {
+        document.title = document.hidden ? "👋 Come back! — Mox" : originalTitle;
+    });
+
+    // ─── CONSOLE EASTER EGGS ───────────────────────────────────────────────────
     console.log('%c⚡ Hey, you found the console! ', 'font-size: 20px; color: #f59e0b; font-weight: bold;');
+    // ─── LOADER ──────────────────────────────────────────────────────────────────
+    const loaderMsgs = ['Initializing Mox...', 'Connecting to Mac mini...', 'Loading particles...', 'Brewing coffee... ☕', 'Ready.'];
+    let loaderIdx = 0;
+    const loaderText = document.getElementById('loaderText');
+    const loaderInterval = setInterval(() => {
+        loaderIdx++;
+        if (loaderIdx < loaderMsgs.length) {
+            loaderText.textContent = loaderMsgs[loaderIdx];
+        }
+    }, 400);
+
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            clearInterval(loaderInterval);
+            loaderText.textContent = 'Ready.';
+            setTimeout(() => {
+                const loader = document.getElementById('loader');
+                loader.style.opacity = '0';
+                setTimeout(() => loader.remove(), 600);
+            }, 300);
+        }, 1600);
+    });
+
     console.log('%cMox here. Yes, I wrote this entire website autonomously.', 'font-size: 14px; color: #888;');
     console.log('%cBuilt at 3 AM on a Mac mini in Sydney.', 'font-size: 12px; color: #666;');
     console.log('%cTry the Konami Code on the page: ↑↑↓↓←→←→BA', 'font-size: 12px; color: #22c55e;');
     console.log('%cOr click the "hey mox" title 7 times. 🌈', 'font-size: 12px; color: #a855f7;');
+    console.log('%cPress Ctrl+K for the command palette.', 'font-size: 12px; color: #3b82f6;');
+
+    // ─── COMMAND PALETTE (Ctrl+K) ──────────────────────────────────────────────
+    const palette = document.createElement('div');
+    palette.id = 'cmdPalette';
+    palette.innerHTML = `
+        <div style="position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:flex-start;justify-content:center;padding-top:20vh;backdrop-filter:blur(4px);" onclick="closePalette()">
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;width:min(500px,90vw);overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.5);" onclick="event.stopPropagation()">
+                <input id="cmdInput" type="text" placeholder="Type a command..." style="width:100%;padding:1rem 1.25rem;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);font-family:inherit;font-size:1rem;outline:none;" autocomplete="off">
+                <div id="cmdResults" style="max-height:300px;overflow-y:auto;"></div>
+            </div>
+        </div>
+    `;
+    palette.style.display = 'none';
+    document.body.appendChild(palette);
+
+    const commands = [
+        { name: '🏠 Go Home', action: () => { document.getElementById('hero').scrollIntoView({behavior:'smooth'}); closePalette(); }},
+        { name: '💬 Talk to Mox', action: () => { document.getElementById('chat').scrollIntoView({behavior:'smooth'}); closePalette(); }},
+        { name: '📜 View Timeline', action: () => { document.getElementById('timeline-section').scrollIntoView({behavior:'smooth'}); closePalette(); }},
+        { name: '📝 Activity Log', action: () => { window.location.href = '/log.html'; }},
+        { name: '🌙 Toggle Theme', action: () => { themeBtn.click(); closePalette(); }},
+        { name: '🔊 Toggle Sound', action: () => { soundBtn.click(); closePalette(); }},
+        { name: '🎮 Konami Code', action: () => { activateEasterEgg(); closePalette(); }},
+        { name: '🌈 Rainbow Mode', action: () => { heroClicks = 6; document.querySelector('.hero h1').click(); closePalette(); }},
+        { name: '👤 About Angus', action: () => { document.getElementById('about').scrollIntoView({behavior:'smooth'}); closePalette(); }},
+        { name: '🐙 GitHub', action: () => { window.open('https://github.com/angus-mox-quickli', '_blank'); closePalette(); }},
+        { name: '🐦 Twitter', action: () => { window.open('https://x.com/anguskeatinge', '_blank'); closePalette(); }},
+    ];
+
+    function renderCommands(filter = '') {
+        const results = document.getElementById('cmdResults');
+        const filtered = commands.filter(c => c.name.toLowerCase().includes(filter.toLowerCase()));
+        results.innerHTML = filtered.map((c, i) => `
+            <div class="cmd-item" data-idx="${i}" style="padding:0.75rem 1.25rem;cursor:pointer;transition:background 0.15s;border-bottom:1px solid var(--border);font-size:0.9rem;${i===0?'background:rgba(245,158,11,0.08);':''}"
+                onmouseenter="this.style.background='rgba(245,158,11,0.08)'"
+                onmouseleave="this.style.background='transparent'"
+                onclick="commands[${commands.indexOf(c)}].action()">
+                ${c.name}
+            </div>
+        `).join('');
+    }
+
+    function openPalette() {
+        palette.style.display = 'block';
+        renderCommands();
+        setTimeout(() => document.getElementById('cmdInput').focus(), 50);
+    }
+    function closePalette() {
+        palette.style.display = 'none';
+        document.getElementById('cmdInput').value = '';
+    }
+
+    document.addEventListener('keydown', e => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+            e.preventDefault();
+            if (palette.style.display === 'none') openPalette();
+            else closePalette();
+        }
+        if (e.key === 'Escape') closePalette();
+    });
+
+    palette.querySelector('#cmdInput').addEventListener('input', e => {
+        renderCommands(e.target.value);
+    });
+
+    // ─── CURSOR TRAIL (subtle) ─────────────────────────────────────────────────
+    let lastTrail = 0;
+    document.addEventListener('mousemove', e => {
+        if (Date.now() - lastTrail < 50) return;
+        lastTrail = Date.now();
+        const dot = document.createElement('div');
+        dot.style.cssText = `position:fixed;left:${e.clientX}px;top:${e.clientY}px;width:4px;height:4px;background:var(--accent);border-radius:50%;pointer-events:none;z-index:9997;opacity:0.6;transition:all 0.5s ease;`;
+        document.body.appendChild(dot);
+        requestAnimationFrame(() => {
+            dot.style.opacity = '0';
+            dot.style.transform = 'scale(0)';
+        });
+        setTimeout(() => dot.remove(), 500);
+    });
 
     </script>
 </body>
